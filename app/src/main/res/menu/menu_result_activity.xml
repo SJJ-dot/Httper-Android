@@ -2,6 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/request"
+        android:icon="@drawable/perm_group_sync_settings"
+        android:title="@string/result_view_request"
+        app:iconTint="#FFFFFFFF"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/info"
         android:icon="@drawable/ic_action_info_outline"
         android:title="@string/result_view_response_info"
         app:showAsAction="always"/>

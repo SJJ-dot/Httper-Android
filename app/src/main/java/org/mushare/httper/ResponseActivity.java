@@ -172,10 +172,17 @@ public class ResponseActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
-                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED)
-                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                if (item.getItemId() == R.id.info) {
+                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
+                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED)
+                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                } else {
+                    if (cacheFile.exists()) {
+                        cacheFile.delete();
+                    }
+                    refresh();
+                }
                 return true;
             }
         });
