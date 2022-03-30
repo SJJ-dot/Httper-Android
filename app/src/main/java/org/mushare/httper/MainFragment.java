@@ -254,6 +254,9 @@ public class MainFragment extends Fragment {
                 return false;
             }
         });
+        RequestRecord record = requestRecordDao.queryBuilder().orderDesc
+                (RequestRecordDao.Properties.CreateAt).limit(1).build().unique();
+        resetRequestInfo(record);
         return view;
     }
 
@@ -361,47 +364,51 @@ public class MainFragment extends Fragment {
         if (requestCode == HISTORY_CODE && resultCode == RESULT_OK) {
             RequestRecord requestRecord = requestRecordDao.queryBuilder().where(RequestRecordDao
                     .Properties.Id.eq(data.getLongExtra("requestRecordId", -1L))).build().unique();
-            if (requestRecord == null) return;
-            int spinnerMethodSelection = indexOfStringInArray(getResources().getStringArray(R.array
-                    .methods_array), requestRecord.getMethod());
-            int spinnerHttpSelection = indexOfStringInArray(getResources().getStringArray(R.array
-                    .http_array), requestRecord.getHttp());
-            if (spinnerHttpSelection == -1 || spinnerMethodSelection == -1) return;
-            ArrayList<AbstractRequestSettingListItem> dataSet = new ArrayList<>();
-            try {
-                dataSet.add(new RequestSettingListStickTitle(RequestSettingType.header));
-                List<MyPair> headers;
-                if ((headers = jsonArrayToPairList(new JSONArray(requestRecord.getHeaders())))
-                        .size() == 0)
-                    dataSet.add(new RequestSettingListKVItem(RequestSettingType.header));
-                else {
-                    for (MyPair myPair : headers) {
-                        dataSet.add(new RequestSettingListKVItem(RequestSettingType.header,
-                                myPair.getFirst(), myPair.getSecond()));
-                    }
-                }
-                dataSet.add(new RequestSettingListStickTitle(RequestSettingType.parameter));
-                List<MyPair> parameters;
-                if ((parameters = jsonArrayToPairList(new JSONArray(requestRecord.getParameters()
-                ))).size() == 0)
-                    dataSet.add(new RequestSettingListKVItem(RequestSettingType.parameter));
-                else {
-                    for (MyPair myPair : parameters) {
-                        dataSet.add(new RequestSettingListKVItem(RequestSettingType.parameter,
-                                myPair.getFirst(), myPair.getSecond()));
-                    }
-                }
-                dataSet.add(new RequestSettingListStickTitle(RequestSettingType.body));
-                dataSet.add(new RequestSettingListBodyItem());
-            } catch (JSONException e) {
-                return;
-            }
-            spinnerMethod.setSelection(spinnerMethodSelection);
-            spinnerHttp.setSelection(spinnerHttpSelection);
-            editTextUrl.setText(requestRecord.getUrl());
-            adapter.setNewList(dataSet);
-            body = requestRecord.getBody();
+            resetRequestInfo(requestRecord);
         } else super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void resetRequestInfo(RequestRecord requestRecord) {
+        if (requestRecord == null) return;
+        int spinnerMethodSelection = indexOfStringInArray(getResources().getStringArray(R.array
+                .methods_array), requestRecord.getMethod());
+        int spinnerHttpSelection = indexOfStringInArray(getResources().getStringArray(R.array
+                .http_array), requestRecord.getHttp());
+        if (spinnerHttpSelection == -1 || spinnerMethodSelection == -1) return;
+        ArrayList<AbstractRequestSettingListItem> dataSet = new ArrayList<>();
+        try {
+            dataSet.add(new RequestSettingListStickTitle(RequestSettingType.header));
+            List<MyPair> headers;
+            if ((headers = jsonArrayToPairList(new JSONArray(requestRecord.getHeaders())))
+                    .size() == 0)
+                dataSet.add(new RequestSettingListKVItem(RequestSettingType.header));
+            else {
+                for (MyPair myPair : headers) {
+                    dataSet.add(new RequestSettingListKVItem(RequestSettingType.header,
+                            myPair.getFirst(), myPair.getSecond()));
+                }
+            }
+            dataSet.add(new RequestSettingListStickTitle(RequestSettingType.parameter));
+            List<MyPair> parameters;
+            if ((parameters = jsonArrayToPairList(new JSONArray(requestRecord.getParameters()
+            ))).size() == 0)
+                dataSet.add(new RequestSettingListKVItem(RequestSettingType.parameter));
+            else {
+                for (MyPair myPair : parameters) {
+                    dataSet.add(new RequestSettingListKVItem(RequestSettingType.parameter,
+                            myPair.getFirst(), myPair.getSecond()));
+                }
+            }
+            dataSet.add(new RequestSettingListStickTitle(RequestSettingType.body));
+            dataSet.add(new RequestSettingListBodyItem());
+        } catch (JSONException e) {
+            return;
+        }
+        spinnerMethod.setSelection(spinnerMethodSelection);
+        spinnerHttp.setSelection(spinnerHttpSelection);
+        editTextUrl.setText(requestRecord.getUrl());
+        adapter.setNewList(dataSet);
+        body = requestRecord.getBody();
     }
 
     int indexOfStringInArray(String[] array, String s) {
